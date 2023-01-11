@@ -1,0 +1,14 @@
+
+.table
+{
+    background-color: white;
+    font-family: 'Source Serif Pro',
+    serif;  
+   
+}
+
+.table thead
+{
+    /* background-color: #8bb88e; */
+    font-size: large;
+}

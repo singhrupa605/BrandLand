@@ -1,0 +1,19 @@
+.table-box
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 2rem;
+    padding: 1rem;
+    /* border: 2px solid rgb(177, 149, 149); */
+}
+
+
+.table thead
+{
+    /* background-color: #8bb8b5;
+    color: rgb(128, 68, 68);
+    font-weight: 600; */
+
+}

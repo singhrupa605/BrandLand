@@ -1,0 +1,58 @@
+{
+  "name": "test_app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.10.16",
+    "@mui/material": "^5.10.15",
+    "@mui/x-data-grid": "^5.17.14",
+    "@syncfusion/ej2-react-spreadsheet": "^20.3.60",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "ag-grid-enterprise": "^28.2.1",
+    "ag-grid-react": "^28.2.1",
+    "axios": "^1.2.0",
+    "bootstrap": "^5.2.3",
+    "compress-json": "^2.1.2",
+    "node-fetch": "^3.3.0",
+    "notistack": "^2.0.8",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.7.0",
+    "react-dom": "^18.2.0",
+    "react-excel-renderer": "^1.1.0",
+    "react-export-table-to-excel": "^1.0.6",
+    "react-router-dom": "^6.4.3",
+    "react-scripts": "5.0.1",
+    "react-spreadsheet": "^0.7.7",
+    "web-vitals": "^2.1.4",
+    "whois": "^2.14.0",
+    "whoiser": "^1.13.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
