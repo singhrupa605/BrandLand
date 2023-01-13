@@ -11,6 +11,7 @@ const DataTable = () => {
     const { enqueueSnackbar } = useSnackbar();
     const [brandsData, setBrandsData] = useState([]);
     const [domainsData, setDomainsData] = useState([]);
+    const [domainRows, setDomainRows] = useState([])
     const [unSuspiciousDomain, setUnSuspiciousDomain] = useState([]);
 
    
@@ -37,8 +38,6 @@ const DataTable = () => {
         try {
             const response = await axios.post("http://localhost:8082/upload/domains/reachable",
                 { domains: data })
-            // console.log(data)
-           console.log(response.data)
             if (response.data.length) {
                 setUnSuspiciousDomain(response.data)
             }
@@ -51,8 +50,9 @@ const DataTable = () => {
 
 
 
-    let rows = []
+
     const createRowData = async (domainData) => {
+        let rows = []
         try {
             for (let i = 1; i < domainData.length; i++) {
                 let domainObj = {
@@ -64,6 +64,7 @@ const DataTable = () => {
             if (rows.length) {
                 await isDomainReachable(rows)
             }
+            setDomainRows(rows)
         }
 
         catch (err) {
@@ -104,7 +105,7 @@ const DataTable = () => {
             <Header />
             <Stack spacing={3} className="table-box">
                 <Typography variant="h5" fontWeight={600} textAlign="center" >Data Table</Typography>
-                {domainsData ? <DataGridDemo  domainData={rows} brandsData={brandsData} unSuspiciousDomain={unSuspiciousDomain} /> : null}
+                {domainsData ? <DataGridDemo  domainData={domainRows} brandsData={brandsData} unSuspiciousDomain={unSuspiciousDomain} /> : null}
             </Stack>
         </Box>
 

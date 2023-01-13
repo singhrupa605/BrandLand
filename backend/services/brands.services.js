@@ -34,15 +34,16 @@ const getLast = async () => {
 const uploadBrands = async (data) => {
     let brand_Id;
     try {
-        if (data.length > 10000) {
-            const splitted = data.splice(0, 10000);
+        if (data.length > 1000) {
+            const splitted = data.splice(0, 1000);
             let res = await Brands.create({ brands: splitted });
             let id = res._id.toString()
             brand_Id = res._id;
             let brand = await Brands.findById(id);
             while (data.length) {
-                const split = data.splice(0, 10000);
+                const split = data.splice(0, 1000);
                 const newArray = [...brand.brands.concat(split)]
+                console.log(newArray)
                 brand.brands = [...newArray];
                 await brand.save()
             }
@@ -52,6 +53,7 @@ const uploadBrands = async (data) => {
             let uploadResponse = await Brands.create({ brands: data });
             brand_Id = uploadResponse._id;
         }
+        console.log(brand_Id)
         return brand_Id;
 
     }

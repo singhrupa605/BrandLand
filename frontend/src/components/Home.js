@@ -98,6 +98,7 @@ const Home = () => {
                 const dataParse = XLSX.utils.sheet_to_json(ws, { header: 1 });
                 const compressedData = compress(dataParse);
                 const response = await uploadFile(url, compressedData)
+                console.log(response)
 
                 if (response.data) {
                     setLoading(false);

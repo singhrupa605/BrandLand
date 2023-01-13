@@ -8,54 +8,6 @@ import { useSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
 import BootstrapTable from './BootstrapTable';
 
-// Styling of the data-grid using Mui Styles
-const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
-    border: 0,
-    color:
-        theme.palette.mode === 'light' ? 'rgba(0,0,0,.85)' : 'rgba(255,255,255,0.85)',
-    fontFamily: [
-        '-apple-system',
-        'BlinkMacSystemFont',
-        '"Segoe UI"',
-        'Roboto',
-        '"Helvetica Neue"',
-        'Arial',
-        'sans-serif',
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-    ].join(','),
-    WebkitFontSmoothing: 'auto',
-    letterSpacing: 'normal',
-    '& .MuiDataGrid-columnsContainer': {
-        backgroundColor: theme.palette.mode === 'light' ? '#fafafa' : 'blue',
-    },
-    '& .MuiDataGrid-iconSeparator': {
-        display: 'none',
-    },
-    '& .MuiDataGrid-columnHeader, .MuiDataGrid-cell': {
-        borderRight: `1px solid ${theme.palette.mode === 'light' ? 'rgb(182, 184, 188)' : 'black'
-            }`,
-        borderTop: `1px solid ${theme.palette.mode === 'light' ? 'rgb(182, 184, 188)' : 'black'
-            }`,
-    },
-    '& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell': {
-        borderBottom: `1px solid ${theme.palette.mode === 'light' ? 'rgb(182, 184, 188)' : 'pink'
-            }`,
-        borderRight: `1px solid ${theme.palette.mode === 'light' ? 'rgb(182, 184, 188)' : 'pink'
-            }`,
-    },
-    '& .MuiDataGrid-cell': {
-        color:
-            theme.palette.mode === 'light' ? 'rgba(0,0,0,.85)' : 'rgba(255,255,255,0.65)',
-    },
-    '& .MuiPaginationItem-root': {
-        borderRadius: 0,
-    },
-}));
-
-
-
 
 export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomain }) {
     const [rows, setRows] = useState([])
@@ -65,7 +17,6 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
     const [unSuspicious, setUnSuspicious] = useState([])
     const { enqueueSnackbar } = useSnackbar();
     const sensitiveIndustries = ["Cannabis And Cannabis Products", "Dating", "Firearms & Weapons", "Weight Loss Products", "Weight Loss Programs", "Gambling (Online)", "Politics", "Alternative & Natural Medicine", "Sexual Health", "Affiliate Marketing", "Money Making Offers", "Online Advertising Companies", "Intimate Apparel", "Specialized Merchants", "Tobacco & Smoking Products"]
-
 
 
     /* Creates an array of all the top level domains from brands file and sets the "topLevelDomains" state
@@ -302,7 +253,6 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
         else {
             let splitted = [];
             const obj = rows.find(o => o.domain === row.domain)
-            console.log(obj)
             if (obj.industry !== "NA") {
                 if ((obj.industry.includes("|"))) {
                     splitted = [...obj.industry.split("|")]
@@ -310,7 +260,6 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
                 else {
                     splitted.push(obj.industry)
                 }
-                console.log(splitted)
                 const sensitiveCategoryIndustries = splitted.filter((ind) => sensitiveIndustries.includes(ind))
 
                 if (sensitiveCategoryIndustries.length > 0 && obj["new or existing"] !== "NA") {
@@ -334,13 +283,12 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
         @param  {Object} row : row selected to be processed
         @return {void} 
     */
-    const handleProcess = (row) => {
+    const handleProcess = (row ) => {
         const data = fillSuspiciousDomain("process", row, rows)
         const arr = fillNewOrExisting("process", row, data)
         const rowIds = fillExistingBrandDetails("process", row, arr)
         const array = fillSensitiveCategory("process", row, rowIds)
         setRows(array)
-        //setRows(rowIds)
     }
 
 
@@ -366,77 +314,12 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
     }
 
 
-    const renderDetailsButton = (params) => {
-        return <Box><Button variant='contained' onClick={() => handleProcess(params.row)} sx={{ textDecoration: "none" }}>process</Button><AutorenewIcon /></Box>
-    }
-
-    const columns = [
-        { field: 'id', headerName: 'S No.', minWidth: 50 },
-
-        {
-            field: 'domain',
-            headerName: 'Domain',
-            editable: true,
-            minWidth: 200,
-        },
-        {
-            field: 'new or existing',
-            headerName: 'New or Existing?',
-            editable: true,
-            minWidth: 130,
-        },
-        {
-            field: 'brand name',
-            headerName: 'Brand Name',
-            editable: true,
-            minWidth: 200,
-        },
-        {
-            field: 'brand Id',
-            headerName: 'Brand ID',
-            editable: true,
-            minWidth: 200
-        }
-        ,
-        {
-            field: 'industry',
-            headerName: 'Industry',
-            editable: true,
-            minWidth: 250
-        },
-        {
-            field: 'sensitive',
-            headerName: 'Sensitive Catergory?',
-            editable: true,
-            minWidth: 200,
-        },
-        {
-            field: 'suspicious domain',
-            headerName: 'Suspicious Domain?',
-            editable: true,
-            minWidth: 200,
-        },
-        {
-            field: 'comments',
-            headerName: 'Comments',
-            editable: true,
-            minWidth: 300
-        },
-        {
-            field: 'process',
-            headerName: 'Start Processing',
-            width: 150,
-            renderCell: renderDetailsButton,
-            disableClickEventBubbling: true,
-            disableExport: true
-        }
-    ];
-
-
+ 
 
     useEffect(() => {
         setRows(domainData)
-    }, [])
+    }, [domainData])
+ 
 
 
     useEffect(() => {
@@ -446,15 +329,6 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
     }, [brandsData, unSuspiciousDomain])
 
 
-    //Custom Toolbar component to display "Export" option in the data grid
-
-    const CustomToolbar = () => {
-        return (
-            <GridToolbarContainer sx={{ justifyContent: "flex-end" }}>
-                <Button></Button>  <GridToolbarExport sx={{ color: "black", fontWeight: "400", marginBottom: "2rem", marginRight: "4rem" }} />
-            </GridToolbarContainer>
-        );
-    }
  
 
     return (
@@ -462,18 +336,8 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
             {loading ? <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "1rem" }}> <CircularProgress />  </Box> : null}
             {rows.length && !loading ? <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "1rem" }}> <Button onClick={handleProcessAll} variant='contained'>Process All</Button></Box> : null}
             {rows.length ?
-            <BootstrapTable currentPageRows={rows} handleProcess={handleProcess}/>
-                // <StyledDataGrid
-                //     pageSize={100}
-                //     rowsPerPageOptions={[100]}
-                //     rows={rows}
-                //     components={{ Toolbar: CustomToolbar }}
-                //     experimentalFeatures={{ newEditingApi: true }}
-                //     columns={columns}
-                // /> 
+            <BootstrapTable rows={rows} handleProcess={handleProcess} setRows={setRows}/>
                 : null}
-
-
         </Box>
     );
 }
