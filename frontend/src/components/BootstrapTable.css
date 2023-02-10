@@ -4,18 +4,37 @@
     background-color: white;
     font-family: 'Source Serif Pro',
     serif;  
+
    
 }
 
 .table thead
 {
-    /* background-color: #8bb88e; */
-    font-size: large;
+    background-color: #f8e0ea;
+    border: 1px solid #efdee5;
+    background-image: linear-gradient(white, rgb(255, 232, 235));
+    
 }
+
+.table .thead
+{
+    height: 60px;
+}
+
+.table .thead th
+{
+   padding: 1rem !important;
+
+}
+
+.table td{
+padding: 0.5rem 1rem 0.5rem 1rem  !important;
+}
+
 
 .tbody tr:hover
 { 
-    background-color: rgb(241, 239, 241);
+    background-color: #dcf4ec;
 }
 
 
@@ -23,4 +42,9 @@
 {
     outline: none !important;
     box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px, rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px, rgba(0, 0, 0, 0.07) 0px 16px 16px;
+}
+
+button:hover
+{
+    background-color: antiquewhite;
 }

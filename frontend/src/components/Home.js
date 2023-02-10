@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { Box, Typography, Stack, Button} from "@mui/material";
+import { Box, Typography, Stack, Button } from "@mui/material";
 import Header from "./Header";
-import * as XLSX from "xlsx"
-import { compress} from 'compress-json';
 import "./Home.css"
 import axios from "axios";
-import { Link } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import { useSnackbar } from "notistack";
+import DataTable from "./Table";
+// import "./Home.scss"
 
 
 const Home = () => {
@@ -15,13 +14,13 @@ const Home = () => {
     const [isBrandFileSelected, setIsBrandFileSelected] = useState(false);
     const [brandFile, setBrandFile] = useState();
     const [domainFile, setDomainFile] = useState();
-    const [isDomainFileUploaded, setIsDomainFileUploaded] = useState(false);
     const [isDomainFileSelected, setIsDomainFileSelected] = useState(false);
     const [brandsData, setBrandsData] = useState([]);
-    const [domainData, setDomainData] = useState([]);
+    const [domainsData, setdomainsData] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    
+
+
 
     /*  
     Function to capture file upload action and set the "brandsFile" and "domainFile" state 
@@ -48,108 +47,83 @@ const Home = () => {
         }
     }
 
-  
-
-
- /*
-     Function to post the file to the backend . This function will be called in "postFileToBackend()"
-     function.
-
-            @param  {String} url : backend URL to post the data
-            @param  {Array} data : Array of objects of domains or brands 
-
-            @return {Object} : response object of axios post request
- */
-    const uploadFile = async (url, data) => {
-        try {
-            const response = await axios.post(url, data);
-            return response;
-        }
-        catch (err) {
-            console.log(err)
-            return null;
-        }
-    }
 
 
 
-    /* 
-     Function to read the excel file and convert the same to json . Set the "brandsData" or
-      "domainsData" state based on the file selected for upload
+    /* Function to upload file to the backend , get the response data from the backend and set the brandsData
+        or domainsData state based on the received response
 
-        @param {String} url : url to post the json converted to backend
-        @param {Object} e : File Upload event 
+        @param {String} url : backend endpoint url to post file
+        @param {String} type : Type of file uploaded ("domain"  or "brand")
+        @param {Object} file : File to be uploaded
 
-
-
+        @return {void}
+    
     */
-    const postFileToBackend = async (url, e, file, type) => {
-        setLoading(true)
-        e.preventDefault();
+    const uploadTestFile = async (url, file, type) => {
         try {
-            var reader = new FileReader();
-            reader.readAsBinaryString(file)
-            reader.onload = async (e) => {
-                var dataToRead = e.target.result;
-                let readedData = XLSX.read(dataToRead, { type: 'binary' });
-                const wsname = readedData.SheetNames[0];
-                const ws = readedData.Sheets[wsname];
-                /* Convert array to json*/
-                const dataParse = XLSX.utils.sheet_to_json(ws, { header: 1 });
-                const compressedData = compress(dataParse);
-                const response = await uploadFile(url, compressedData)
-                console.log(response)
-
-                if (response.data) {
-                    setLoading(false);
-                    if (type === "domain") {
-                        setIsDomainFileUploaded(true);
-                        setDomainData(dataParse)          
-                    }
-                    else {
-                        setBrandsData(dataParse)
-                    }
-                    enqueueSnackbar("File uploaded successfully !!", { variant: "success" })
+            setLoading(true)
+            const formdata = new FormData();
+            formdata.append("file", file)
+            const res = await axios.post(url, formdata)
+            if (res.data) {
+                if (type === "brand") {
+                    setBrandsData(res.data.data)
+                    enqueueSnackbar("Brands File uploaded successfully", { variant: "success" })
                 }
                 else {
-                    setLoading(false);
-                    enqueueSnackbar("Something went wrong, please try again!!", { variant: "error" })
+                    setdomainsData(res.data.data)
+                    enqueueSnackbar("Domains File uploaded successfully", { variant: "success" })
                 }
-
+                setLoading(false)
             }
-
+            else if (res.status === 500) {
+                enqueueSnackbar("Oops! File can't be uploaded, please check your server or reload the page", { variant: "success" })
+            }
         }
         catch (err) {
-            console.log(err)
             setLoading(false)
+            enqueueSnackbar("Something went wrong! Please restart the application or check the console for error", { variant: "error" })
+            console.log(err)
+
         }
+
     }
+
+
+
 
 
     return (
         <Box>
             <Header />
-            <Stack marginTop={6} spacing={3} height="100vh" alignItems="center">
-                {!isDomainFileUploaded ? <Typography variant="h6" fontWeight={600} color="tertiary" textAlign="center">Upload Your Files Here</Typography> : null}
-                {loading ? <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "100vh", alignItems: "center" }}><Typography variant="h6">Uploading ...</Typography> <CircularProgress sx={{ marginTop: "1rem" }} /> </Box> : brandsData.length === 0 ?
-                    <Box className="home-box">
-                        <form action="#">
-                            <div >
-                                <input type="file" id="file" onChange={(e) => handleFileChange(e, "brand")} accept=".xlsx" />
-                            </div>
-                        </form>
-                        <Button variant="contained" onClick={(e) => postFileToBackend("http://localhost:8082/upload/brands", e, brandFile, "brand")} disabled={!isBrandFileSelected}>upload brands file</Button>
-                    </Box> : !isDomainFileUploaded && !domainData.length ?
-                        <Box className="home-box">
-                            <form action="#">
+            <Stack marginTop={6} spacing={3}  >
+                {!domainsData?.length ? <Typography className="uploadtext" variant="h5" fontWeight={600} color="tertiary" textAlign="center">Upload your files here</Typography> : null}
+                {loading ?
+                    <Box className="uploadtextbox">
+                        <Typography variant="h6">Uploading ...</Typography> <CircularProgress sx={{ marginTop: "2rem" }} size="7rem" thickness={1} />
+                    </Box> :
+                    !brandsData?.length ?
+                        (<Box className="home-box">
+                            <form action="#" encType="multipart/form-data">
                                 <div >
-                                    <input type="file" id="file" onChange={(e) => handleFileChange(e, "domain")} accept=".xlsx" />
+                                    <input type="file" id="file" name="file" onChange={(e) => handleFileChange(e, "brand")} accept=".xlsx" />
                                 </div>
                             </form>
-                            <Button variant="contained" onClick={(e) => postFileToBackend("http://localhost:8082/upload/domains", e, domainFile, "domain")} disabled={!isDomainFileSelected}>upload domains file</Button>
-                        </Box> :
-                       <Box marginTop={10}> <Link to="/table" style={{textDecoration: 'none'}}><Button  variant="contained">View Table</Button></Link> </Box>}
-               
+                            <Button variant="contained" className="uploadbutton" onClick={(e) => uploadTestFile("http://localhost:8082/upload/brands/brand", brandFile, "brand")} disabled={!isBrandFileSelected}>upload brands file</Button>
+                        </Box>) :
+                        !domainsData?.length ?
+                            (<Box className="home-box">
+                                <form action="#">
+                                    <div >
+                                        <input type="file" id="file" name="file" onChange={(e) => handleFileChange(e, "domain")} accept=".xlsx" />
+                                    </div>
+                                </form>
+                                <Button variant="contained" className="uploadbutton" onClick={(e) => uploadTestFile("http://localhost:8082/upload/domains/domain", domainFile, "domain")} disabled={!isDomainFileSelected}>upload domains file</Button>
+                            </Box>) :
+                            <DataTable brandsData={brandsData} domainsData={domainsData} />
+                }
+
             </Stack>
         </Box>
     )

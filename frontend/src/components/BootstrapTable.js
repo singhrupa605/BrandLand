@@ -1,43 +1,30 @@
 import { Table, } from "react-bootstrap";
-import { Button, Stack, Box } from "@mui/material";
+import { Button, Stack, CircularProgress } from "@mui/material";
 import "./Table.css"
-import DownloadIcon from '@mui/icons-material/Download';
 import React, { useEffect, useState } from 'react';
-import { downloadExcel } from 'react-export-table-to-excel';
 import "./BootstrapTable.css"
-import { style } from "@mui/system";
+// import CustomPagination from "./CustomPagination";
+
 
 
 const BootstrapTable = ({
     rows,
     handleProcess,
-    setRows
+    setRows,
+    buttonLoader,
+    current
 }) => {
 
+    // const [rowsPerPage] = useState(10)
     const [focused, setFocused] = useState(null)
-    const header = ["S No.", "Domain", "New or Existing", "Brand Name", "Brand ID", "Industry", "Sensitive Category?",
-        "Suspicious Domain?", "Comments"]
+    // const [page, setPage] = useState(0)
+    // const [currentPageRows , setCurrentPageRows] = useState([]);
 
 
-    function handleDownloadExcel() {
-        downloadExcel({
-            fileName: "demo",
-            sheet: "demo.xlsx",
-            tablePayload: {
-                header,
-                // accept two different data structures
-                body: rows.map((obj) => ({
-                    "id": obj["id"], "domain": obj["domain"], "new or existing": obj["new or existing"], "brand name": obj["brand name"],
-                    "brand Id": obj["brand Id"], "industry": obj["industry"], "sensitive": obj["sensitive"],
-                    "suspicious domain": obj["suspicious domain"], "comments": obj["comments"]
-                }))
-            },
-        });
-    }
-
-    const handleEdit = (e, row) => {
+    const handleEdit = (e) => {
         setFocused(e.target.textContent)
     }
+
     const handleSave = (e, row) => {
         const fieldEdited = e.target.id
         if (focused !== e.target.textContent) {
@@ -54,11 +41,16 @@ const BootstrapTable = ({
         }
     }
 
+    // useEffect(() => {
+    //     const lastIndex = (page + 1) * rowsPerPage;
+    //     const beginIndex = lastIndex - rowsPerPage;
+    //     const currentRows = rows.slice(beginIndex, lastIndex);
+    //     setCurrentPageRows(currentRows)
+    // }, [page])
 
-   
+
     return (
         <Stack spacing={3} alignItems="center">
-            <Box justifyContent="flex-end"><Button variant="contained" onClick={handleDownloadExcel}>download excel <DownloadIcon /></Button></Box>
             <Table
                 striped
                 bordered
@@ -83,7 +75,6 @@ const BootstrapTable = ({
                 </thead>
                 <tbody className="tbody">
                     {rows.map((row) => {
-
                         return (
                             <tr key={row["id"]} id={row["id"]}  >
                                 <td>{row["id"]}</td>
@@ -97,11 +88,10 @@ const BootstrapTable = ({
                                 <td contentEditable suppressContentEditableWarning className="cell" id="comments" onClick={(e) => handleEdit(e, row)} onBlur={(e) => handleSave(e, row)}>{row["comments"]}</td>
                                 <td>
                                     <Stack className="actions" >
-                                        <Button
-                                            variant="contained"
-                                            onClick={() => handleProcess(row)} >
-                                            Process
-                                        </Button>
+                                        <Button variant="contained" onClick={async (e) => {
+                                            e.preventDefault()
+                                            handleProcess(row)
+                                        }}>Process {(buttonLoader && current.id === row.id) && <CircularProgress sx={{ marginLeft: "0.5rem" }} color="tertiary" size="20px" />}</Button>
                                     </Stack>
                                 </td>
                             </tr>
@@ -109,6 +99,8 @@ const BootstrapTable = ({
                     })}
                 </tbody>
             </Table>
+            {/* <CustomPagination page={page} rowsPerPage={10} setPage={setPage} totalRows={rows?.length ? rows.length : 0} /> */}
+
         </Stack>
 
     );

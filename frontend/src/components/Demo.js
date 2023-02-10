@@ -1,24 +1,71 @@
 import React, { useEffect, useState } from 'react';
-import { Table } from "react-bootstrap";
-import { DataGrid, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
-import { Box, Button } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
+import { Box, Button, Stack, Typography } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
 import BootstrapTable from './BootstrapTable';
+import axios from 'axios';
+import "./Progress.css"
+import Progress from './Progress';
+import { downloadExcel } from 'react-export-table-to-excel';
 
 
-export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomain }) {
-    const [rows, setRows] = useState([])
+export default function DataGridDemo({ domainRows, setDomainRows, brandsData }) {
     const [brandObjects, setBrandObjects] = useState([]);
     const [topLevelDomains, setTopLevelDomains] = useState([]);
     const [loading, setLoading] = useState(false)
-    const [unSuspicious, setUnSuspicious] = useState([])
+    const [buttonLoader, setButtonLoader] = useState(false)
     const { enqueueSnackbar } = useSnackbar();
+    const [current, setCurrent] = useState(null)
+    const [dataProcessing, setDataProcessing] = useState(false)
+
     const sensitiveIndustries = ["Cannabis And Cannabis Products", "Dating", "Firearms & Weapons", "Weight Loss Products", "Weight Loss Programs", "Gambling (Online)", "Politics", "Alternative & Natural Medicine", "Sexual Health", "Affiliate Marketing", "Money Making Offers", "Online Advertising Companies", "Intimate Apparel", "Specialized Merchants", "Tobacco & Smoking Products"]
+    const header = ["S No.", "Domain", "New or Existing", "Brand Name", "Brand ID", "Industry", "Sensitive Category?",
+        "Suspicious Domain?", "Comments"]
 
 
+
+
+
+    const isDomainReachable = async (data) => {
+        try {
+            const response = await axios.post("http://localhost:8082/upload/domains/reachable",
+                { domains: data })
+            if (response.status === 200 && response.data.length > 0) {
+                return response.data
+            }
+            else {
+                console.log(response)
+                return [];
+            }
+        }
+        catch (err) {
+            console.log(err)
+            return []
+        }
+    }
+
+
+
+
+
+    const isSingleDomainReachable = async (data) => {
+        try {
+            const response = await axios.post("http://localhost:8082/upload/domains/singlereachable",
+                { domain: data })
+            if (response.status === 200 && response.data) {
+                return response.data
+            }
+            else {
+                console.log(response)
+                return null;
+            }
+        }
+        catch (err) {
+            console.log(err)
+            return null
+        }
+    }
     /* Creates an array of all the top level domains from brands file and sets the "topLevelDomains" state
  
      @param    {Array} brandsArray  : array of brands details
@@ -27,23 +74,25 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
    */
     const filterTopLevelDomain = (brandsArray) => {
         let filteredTopLevelDomains = [];
-        for (let i = 1; i < brandsArray.length; i++) {
-            for (let j = 0; j < brandsArray[i].length; j++) {
-                if (brandsArray[0][j] === "Top Level Domain" && brandsArray[i][j] !== null) {
-                    let domain = brandsArray[i][j]
-                    if (domain.includes("|")) {
+        const headersList = brandsArray.length ? brandsArray[0] : []
+        const indexForTopLevelDomain = headersList.indexOf("Top Level Domain")
+
+        filteredTopLevelDomains = brandsArray.flatMap((x, i) => {
+            if (i !== 0) {
+                if (x[indexForTopLevelDomain] !== null) {
+                    let domain = x[indexForTopLevelDomain]
+                    if (domain?.includes("|")) {
                         let splittedArray = domain.split("|");
-                        filteredTopLevelDomains = [...filteredTopLevelDomains.concat(splittedArray)]
+                        return [...filteredTopLevelDomains.concat(splittedArray)]
                     }
                     else {
-                        filteredTopLevelDomains.push(domain)
+                        return domain
                     }
                 }
             }
-
-        }
+            return null
+        }).filter(y => !!y)
         setTopLevelDomains(filteredTopLevelDomains)
-
     }
 
 
@@ -100,11 +149,11 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
          
          @return {Array} : Updated array with "Suspicious Domain?" column populated
       */
-    const fillSuspiciousDomain = (type, row, rows) => {
+    const fillSuspiciousDomain = async (type, row, rows, unSuspiciousDomain) => {
         let newArray = [];
         if (type === "process all") {
             newArray = [...rows].map(obj => {
-                if (unSuspicious.includes(obj.domain)) {
+                if (unSuspiciousDomain.includes(obj.domain)) {
                     return { ...obj, "suspicious domain": "No" }
                 }
                 else {
@@ -113,7 +162,9 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
             })
         }
         else if (type === "process") {
-            if (unSuspicious.includes(row.domain)) {
+            const isReachable = await isSingleDomainReachable(row.domain)
+            console.log(isReachable)
+            if (isReachable) {
                 newArray = setCellValue(row, "No", "suspicious domain", rows)
             }
             else {
@@ -136,14 +187,14 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
 
         @return {Array} : Updated array with "New or Existing" column populated
   */
-    const fillNewOrExisting = (type, row, rows) => {
+    const fillNewOrExisting = async (type, row, rows, unSuspiciousDomain) => {
         let newArray = []
         if (type === "process all") {
             newArray = [...rows].map(obj => {
-                if (topLevelDomains.includes(obj.domain) && unSuspicious.includes(obj.domain)) {
+                if (topLevelDomains.includes(obj.domain) && unSuspiciousDomain.includes(obj.domain)) {
                     return { ...obj, "new or existing": "Existing" }
                 }
-                else if (!topLevelDomains.includes(obj.domain) && unSuspicious.includes(obj.domain)) {
+                else if (!topLevelDomains.includes(obj.domain) && unSuspiciousDomain.includes(obj.domain)) {
                     return { ...obj, "new or existing": "New" }
                 }
                 else {
@@ -152,10 +203,11 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
             })
         }
         else if (type === "process") {
-            if (topLevelDomains.includes(row.domain) && unSuspicious.includes(row.domain)) {
+            const isReachable = await isSingleDomainReachable(row.domain)
+            if (topLevelDomains.includes(row.domain) && isReachable) {
                 newArray = setCellValue(row, "Existing", "new or existing", rows)
             }
-            else if (!topLevelDomains.includes(row.domain) && unSuspicious.includes(row.domain)) {
+            else if (!topLevelDomains.includes(row.domain) && isReachable) {
                 newArray = setCellValue(row, "New", "new or existing", rows)
             }
             else {
@@ -217,15 +269,15 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
 
 
 
- /* Function to populate the "Sensitive Category?" column of the table depending 
-    on whether the industry of a domain exists in the list of sensitive industries or not
+    /* Function to populate the "Sensitive Category?" column of the table depending 
+       on whether the industry of a domain exists in the list of sensitive industries or not
+      
+           @param {String} type : "process" or "process all"
+           @param {Object} row  : row selected to process if type is "process"
+           @param {Array} rows : current table rows 
    
-        @param {String} type : "process" or "process all"
-        @param {Object} row  : row selected to process if type is "process"
-        @param {Array} rows : current table rows 
-
-        @return {Array} : Updated array with "Sensitive Category?" column populated
-  */
+           @return {Array} : Updated array with "Sensitive Category?" column populated
+     */
 
     const fillSensitiveCategory = (type, row, rows) => {
         let newArray = []
@@ -283,61 +335,107 @@ export default function DataGridDemo({ domainData, brandsData, unSuspiciousDomai
         @param  {Object} row : row selected to be processed
         @return {void} 
     */
-    const handleProcess = (row ) => {
-        const data = fillSuspiciousDomain("process", row, rows)
-        const arr = fillNewOrExisting("process", row, data)
-        const rowIds = fillExistingBrandDetails("process", row, arr)
-        const array = fillSensitiveCategory("process", row, rowIds)
-        setRows(array)
+    const handleProcess = async (row) => {
+        try {
+            setCurrent(row)
+            setButtonLoader(true)
+            if (topLevelDomains.length) {
+                const data = await fillSuspiciousDomain("process", row, domainRows)
+                const arr = await fillNewOrExisting("process", row, data)
+                const rowIds = fillExistingBrandDetails("process", row, arr)
+                const array = fillSensitiveCategory("process", row, rowIds)
+                setDomainRows(array)
+                setButtonLoader(false)
+            }
+            else {
+                setButtonLoader(false)
+                enqueueSnackbar("Cannot process the data , please retry or restart the appplication", { variant: "error" })
+            }
+        }
+        catch (err) {
+            console.log(err)
+        }
+
+
     }
+
 
 
     /* Function to process all rows at once on a single click */
 
-    const handleProcessAll = () => {
+    const handleProcessAll = async () => {
         setLoading(true)
-        setTimeout(() => {
-            if (unSuspicious.length > 0) {
+        setDataProcessing(true)
+        new Promise(async (resolve, reject) => {
+            resolve(await isDomainReachable(domainRows))
+
+        }).then(async (unSuspiciousDomain) => {
+            // console.log(unSuspiciousDomain)
+            if (unSuspiciousDomain.length > 0 && topLevelDomains.length) {
                 setLoading(false)
-                const data = fillSuspiciousDomain("process all", "", rows)
-                const arr = fillNewOrExisting("process all", "", data)
+                setDataProcessing(false)
+                const data = await fillSuspiciousDomain("process all", "", domainRows, unSuspiciousDomain)
+                const arr = await fillNewOrExisting("process all", "", data, unSuspiciousDomain)
                 const rowIds = fillExistingBrandDetails("process all", "", arr)
                 const array = fillSensitiveCategory("process all", "", rowIds)
-                setRows(array)
+                setDomainRows(array)
             }
             else {
                 setLoading(false)
+                setDataProcessing(false)
                 enqueueSnackbar("Cannot process the data , please retry or restart the appplication", { variant: "error" })
             }
-        }, 5000)
+
+
+        }).catch(err => {
+            setLoading(false)
+            setDataProcessing(false)
+            console.log(err)
+            enqueueSnackbar(err, { variant: "error" })
+        })
+
 
     }
 
 
- 
 
-    useEffect(() => {
-        setRows(domainData)
-    }, [domainData])
- 
+    function handleDownloadExcel() {
+        downloadExcel({
+            fileName: "demo",
+            sheet: "demo.xlsx",
+            tablePayload: {
+                header,
+                // accept two different data structures
+                body: domainRows.map((obj) => ({
+                    "id": obj["id"], "domain": obj["domain"], "new or existing": obj["new or existing"], "brand name": obj["brand name"],
+                    "brand Id": obj["brand Id"], "industry": obj["industry"], "sensitive": obj["sensitive"],
+                    "suspicious domain": obj["suspicious domain"], "comments": obj["comments"]
+                }))
+            },
+        });
+    }
+
 
 
     useEffect(() => {
         createBrandObjects(brandsData)
         filterTopLevelDomain(brandsData)
-        setUnSuspicious(unSuspiciousDomain)
-    }, [brandsData, unSuspiciousDomain])
+    }, [])
 
 
- 
 
     return (
-        <Box sx={{ height: "100vh", width: '100%' }}>
-            {loading ? <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "1rem" }}> <CircularProgress />  </Box> : null}
-            {rows.length && !loading ? <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "1rem" }}> <Button onClick={handleProcessAll} variant='contained'>Process All</Button></Box> : null}
-            {rows.length ?
-            <BootstrapTable rows={rows} handleProcess={handleProcess} setRows={setRows}/>
-                : null}
+        <Box sx={{ width: '100%' }}>
+            {!domainRows?.length ? <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "1rem" }}>  <CircularProgress />  </Box> :
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <Stack direction="row" spacing={6} paddingBottom={3}
+                    > <Button disabled={loading} onClick={handleProcessAll} variant='contained' >Process All</Button>
+                        <Button variant="contained" onClick={handleDownloadExcel} disabled={loading}>download excel <DownloadIcon /></Button></Stack>
+                    {loading ? <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "1rem" }}><CircularProgress sx={{ marginTop: "2rem" }} thickness={1} size="7rem" />  {dataProcessing && <Progress />
+                    } </Box> : <BootstrapTable rows={domainRows} handleProcess={handleProcess} setRows={setDomainRows} buttonLoader={buttonLoader} current={current} />}
+                </Box>}
+
         </Box>
     );
 }
+

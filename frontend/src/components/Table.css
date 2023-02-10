@@ -1,4 +1,4 @@
-.table-box
+/* .table-box
 {
     display: flex;
     justify-content: center;
@@ -8,3 +8,13 @@
     padding: 1rem;
 }
 
+.datatable
+{
+    text-shadow: 2px 7px 5px rgba(0,0,0,0.3), 
+0px -4px 10px rgba(255,255,255,0.3);
+}
+
+.loadbutton
+{
+    box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;
+} */

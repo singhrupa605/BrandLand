@@ -14,9 +14,11 @@
     "@testing-library/user-event": "^13.5.0",
     "ag-grid-enterprise": "^28.2.1",
     "ag-grid-react": "^28.2.1",
-    "axios": "^1.2.0",
+    "axios": "^1.2.2",
     "bootstrap": "^5.2.3",
     "compress-json": "^2.1.2",
+    "faker": "^6.6.6",
+    "form-data": "^4.0.0",
     "node-fetch": "^3.3.0",
     "notistack": "^2.0.8",
     "react": "^18.2.0",
@@ -24,6 +26,7 @@
     "react-dom": "^18.2.0",
     "react-excel-renderer": "^1.1.0",
     "react-export-table-to-excel": "^1.0.6",
+    "react-paginate": "^8.1.4",
     "react-router-dom": "^6.4.3",
     "react-scripts": "5.0.1",
     "react-spreadsheet": "^0.7.7",
@@ -54,5 +57,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "sass": "^1.58.0"
   }
 }

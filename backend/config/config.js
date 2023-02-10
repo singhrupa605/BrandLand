@@ -3,6 +3,7 @@ const Joi = require("joi");
 const path = require('path');
 
 
+
 // Setting path for environment variables
 dotenv.config({path:path.join(__dirname, '../../.env')});
 
@@ -11,6 +12,7 @@ dotenv.config({path:path.join(__dirname, '../../.env')});
 const envVarSchema = Joi.object().keys({
     PORT : Joi.number().default(8080),
     MONGO_URI : Joi.string().required().description("MONGO DB URL"),
+    MONGO:Joi.string().required()
 
 }).unknown();
  
@@ -21,6 +23,7 @@ if(error)
     throw new Error(error.message);
 }
 
+
 module.exports = 
 {
     port : vars.PORT,
@@ -30,7 +33,9 @@ module.exports =
         {
             useNewUrlParser : true,
             useUnifiedTopology : true,
-        }
+        },
+        mongourl : vars.MONGO
+
     }
 
 }

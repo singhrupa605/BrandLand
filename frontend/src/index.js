@@ -13,11 +13,13 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
      <SnackbarProvider
+    //  style={{backgroundColor : '#9cc7b8', color:"black"}}
           maxSnack={1}
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "center",
           }}
+          autoHideDuration = {3000}
           preventDuplicate>
     <BrowserRouter>
     <ThemeProvider theme={theme}>

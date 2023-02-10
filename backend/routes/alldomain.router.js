@@ -1,17 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const domainsController = require("../controller/domains.controller")
-
-// Route to post the domains file data
-router.post("/", domainsController.postDomains)
-
-// Route to get the latest uploaded domains file data
-router.get("/latest", domainsController.getLastDomain)
+const bucketstorage = require("../utils/datastream")
 
 // Route to check if domain is reachable
 router.post("/reachable", domainsController.isDomainReachable)
 
-
+router.post("/singlereachable", domainsController.isSingleDomainReachable)
+ 
+router.post("/domain", bucketstorage.domainupload, domainsController.uploadGridFsDomain)
 
 
 module.exports = router;

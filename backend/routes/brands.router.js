@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const brandController = require("../controller/brands.controller")
+const bucketstorage = require("../utils/datastream")
+
+router.post("/brand" , bucketstorage.brandupload,  brandController.uploadGridFsBrand)
 
 
-//Route to post the brands file data to the database
-router.post("/", brandController.postBrands)
-
-// Route to get the latest uploaded brands  file data
-router.get("/latest" ,brandController.fetchLast);
 
 module.exports = router;

@@ -2,6 +2,109 @@
 {
   display: flex;
   justify-content: center;
-  height: 70%;
   align-items: center;
+  height: 100vh;
+  
 }
+
+.home-box form , .home-box button{ 
+  margin-top: -15rem;
+}
+
+.uploadtext
+{
+  
+text-shadow: 2px 7px 5px rgba(0,0,0,0.3), 
+0px -4px 10px rgba(176, 131, 131, 0.3);
+word-spacing: 3px;
+}
+
+.uploadtextbox
+{
+  height:100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  
+  align-items: center;
+  margin-top: -5rem !important;
+}
+
+.uploadbutton
+{
+    min-width: 300px;
+    min-height: 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    font-weight: 700;
+    color: #313133;
+    background: #9cc7b8;
+  background: linear-gradient(90deg, #9cc7b8 0%, #9cc7b8 100%);
+    border: none;
+    border-radius: 1000px;
+    box-shadow: 12px 12px 24px #9cc7b8;
+    transition: all 0.3s ease-in-out 0s;
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    padding: 10px;
+    }
+  
+ .uploadbutton::before {
+  content: '';
+    border-radius: 10px;
+    min-width: calc(300px + 12px);
+    min-height: calc(60px + 12px);
+    border: 1px solid #9cc7b8;
+    box-shadow: 0 0 60px rgba(85, 248, 191, 0.721);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: all .3s ease-in-out 0s;
+  }
+  
+  .uploadbutton:hover, .uploadbutton:focus {
+    color: #313133;
+    transform: translateY(-6px);
+  }
+  
+ .uploadbutton:hover::before,.uploadbutton:focus::before {
+    opacity: 1;
+  }
+  
+ .uploadbutton::after {
+    content: '';
+    /* width: 30px; height: 30px; */
+    border-radius: 100%;
+    border: 4px solid rgb(104, 141, 104);
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: ring 1.5s infinite;
+  }
+  
+ .uploadbutton:hover::after,.uploadbutton:focus::after {
+    animation: none;
+    display: none;
+  }
+  
+  @keyframes ring {
+    0% {
+      width: 30px;
+      height: 30px;
+      opacity: 1;
+    }
+    100% {
+      width: 300px;
+      height: 300px;
+      opacity: 0;
+    }
+  }
+
+
+  
