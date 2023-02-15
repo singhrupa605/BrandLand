@@ -6,8 +6,7 @@ import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import { useSnackbar } from "notistack";
 import DataTable from "./Table";
-// import "./Home.scss"
-
+import SouthIcon from '@mui/icons-material/South';
 
 const Home = () => {
     const { enqueueSnackbar } = useSnackbar();
@@ -91,14 +90,14 @@ const Home = () => {
     }
 
 
-
+      
 
 
     return (
         <Box>
             <Header />
             <Stack marginTop={6} spacing={3}  >
-                {!domainsData?.length ? <Typography className="uploadtext" variant="h5" fontWeight={600} color="tertiary" textAlign="center">Upload your files here</Typography> : null}
+                {!domainsData?.length ?<Box className="downarrowbox"><Typography className="uploadtext" variant="h5" fontWeight={600} color="tertiary" textAlign="center">Upload your files here</Typography> <SouthIcon sx={{marginLeft:"1rem", fontSize:"2.5rem"}} /> </Box> : null}
                 {loading ?
                     <Box className="uploadtextbox">
                         <Typography variant="h6">Uploading ...</Typography> <CircularProgress sx={{ marginTop: "2rem" }} size="7rem" thickness={1} />

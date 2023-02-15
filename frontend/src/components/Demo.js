@@ -370,7 +370,7 @@ export default function DataGridDemo({ domainRows, setDomainRows, brandsData }) 
             resolve(await isDomainReachable(domainRows))
 
         }).then(async (unSuspiciousDomain) => {
-            // console.log(unSuspiciousDomain)
+            console.log(unSuspiciousDomain)
             if (unSuspiciousDomain.length > 0 && topLevelDomains.length) {
                 setLoading(false)
                 setDataProcessing(false)

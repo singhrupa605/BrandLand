@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Typography, AppBar, Toolbar, Menu, MenuItem } from "@mui/material";
+import { Box, Typography, AppBar, Toolbar } from "@mui/material";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+
 import "./Header.css"
 
 

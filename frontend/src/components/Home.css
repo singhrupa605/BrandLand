@@ -13,9 +13,7 @@
 
 .uploadtext
 {
-  
-text-shadow: 2px 7px 5px rgba(0,0,0,0.3), 
-0px -4px 10px rgba(176, 131, 131, 0.3);
+  text-shadow: .1em .1em 0 hsl(154, 5%, 73%);
 word-spacing: 3px;
 }
 
@@ -107,4 +105,8 @@ word-spacing: 3px;
   }
 
 
-  
+  .downarrowbox
+  {
+    display: flex;
+    justify-content: center
+  }
